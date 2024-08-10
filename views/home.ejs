@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1><%= data[3].name%></h1>
+    <h1>helo lka</h1>
+    <form>
+       <input type="text" placeholder="email" id="email">
+       <input type="text" placeholder="create your todo" id="todo">
+       <input type="text" placeholder="add your description" id="description"> 
+       <button>edit me </button><button>delete me</button>
+    </form>
+    <button class="submit">submit</button>
+    <script>
+        document.querySelector('.submit').addEventListener('click',async()=>{
+            alert('helo')
+        let data = await fetch('/get_data');
+        var json_data = await data.json();
+console.log(json_data);
+        for(var i=0;i<json_data.length;i++){
+            if(document.querySelector('#email').value === json_data[i].email){
+                var email = json_data[i].email;
+                json_data[i].posts =  document.querySelector('#description').value;
+                 break;
+            }
+        }
+        var descriptionsec = document.querySelector('#description').value;
+        descriptionsec.value =  json_data[i].posts;
+      console.log(descriptionsec);
+    let postobj = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            email: email,
+            post: descriptionsec
+        }),
+    }
+
+    try {
+        const response = await fetch("http://localhost:4000/userpost", postobj);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        console.log("Request successful");
+    } catch (err) {
+        console.error("Sorry, unable to post data", err);
+    }
+});
+
+
+
+    </script>
+</body>
+</html>
