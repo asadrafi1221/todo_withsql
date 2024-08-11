@@ -39,7 +39,7 @@ const display = (req, res) => {
 
 
 const get_data = async (req,res)=>{
-    const data = (await db_data.query('select * from users_data')).rows;
+    const data = (await db_data.query('select * from all_users')).rows;
     res.send(data);
 }
 export { create_user, display ,get_data};
