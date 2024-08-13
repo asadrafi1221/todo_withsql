@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Post Management</title>
+    <style>
+      body {
+        font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
+          sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 450px;
+        overflow-y: auto;
+        width: 100%;
+        max-width: 800px;
+      }
+      .container div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        background-color: #333;
+        border-radius: 10px;
+        padding: 20px;
+        color: #fff;
+      }
+      .post_div {
+        background-color: #fff;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 100%;
+        box-sizing: border-box;
+        color: #000;
+      }
+      .box {
+        border: 2px solid #fff;
+        width: 100%;
+        background-color: #000;
+        padding: 10px;
+        border-radius: 10px;
+        box-sizing: border-box;
+      }
+      #data_transmitter {
+        background-color: #f00;
+        transform: translateX(-100%);
+        width: 300px;
+        height: 200px;
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        transition: transform 0.5s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+      }
+      #data_transmitter.show {
+        transform: translateX(0%);
+      }
+      #data_transmitter input {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin-bottom: 10px;
+        border: none;
+        border-radius: 5px;
+        outline: none;
+      }
+      #data_transmitter button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #fff;
+        color: #f00;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      #data_transmitter button:hover {
+        background-color: #f7f7f7;
+      }
+      .text {
+        margin-bottom: 20px;
+      }
+      .post_div p {
+        margin: 5px 0;
+      }
+      .post_div button {
+        margin-left: 10px;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #00f;
+        color: #fff;
+        cursor: pointer;
+      }
+      .post_div button:hover {
+        background-color: #00c;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="text">
+      <h1>View and Manage Your Posts and</h1>
+    </div>
+    <div class="container"></div>
+
+    <script>
+      const display_posts = async () => {
+        try {
+          let response_data = await fetch("/get_data");
+          var users_data = await response_data.json();
+          console.log(users_data);
+        } catch (err) {
+          console.log(`Cannot fetch the data: ${err}`);
+        }
+
+        const container = document.querySelector(".container");
+
+        for (let i = 0; i < users_data.length; i++) {
+          let huge = document.createElement("div");
+          let box = document.createElement("div");
+          let para = document.createElement("p");
+          let post_div = document.createElement("div");
+          let info_div = document.createElement("div");
+          let email_para = document.createElement("p");
+          let date_para = document.createElement("p");
+          let posts = document.createElement("div");
+          let add_button = document.createElement("button");
+          add_button.innerHTML = "Add me";
+          let add_inp = document.createElement("input");
+          let add_div = document.createElement("div");
+
+          add_div.appendChild(add_inp);
+          add_div.appendChild(add_button);
+          post_div.classList.add("post_div");
+          box.classList.add("box");
+          post_div.appendChild(add_div);
+          post_div.appendChild(posts);
+
+          add_button.addEventListener("click", async() => {
+            let newpost = document.createElement("p");
+            newpost.innerHTML = `${add_inp.value} <button class='edit'>Edit</button> <button class='delete'>Delete</button>`;
+            posts.appendChild(newpost);
+            
+            const postContent = add_inp.value.trim();
+            const emailElement = newpost.parentElement.parentElement.nextElementSibling.lastElementChild;
+    const email = emailElement.innerHTML.trim();
+console.log(email, postContent)
+    await sendPostData(postContent, email);
+    add_inp.value = "";
+            
+            newpost
+              .querySelector(".edit")
+              .addEventListener("click", async () => {
+                let newValue = prompt(
+                  "Edit post:",
+                  newpost.firstChild.nodeValue.trim()
+                );
+                if (newValue !== null) {
+                  newpost.firstChild.nodeValue = newValue;
+                }
+                await sendPostData(newValue,email );
+              });
+
+            newpost.querySelector(".delete").addEventListener("click", () => {
+              posts.removeChild(newpost);
+            });
+          });
+
+          async function sendPostData(content, email) {
+            const data = {
+              email: email,
+              postContent: content,
+            };
+            console.log(data);
+
+            
+              try {
+  const response = await fetch('http://localhost:4000/update_post', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+
+  })
+}catch(err){
+  console.log(err);
+}
+}
+
+          para.innerHTML = users_data[i].name;
+
+          if (Array.isArray(users_data[i].posts)) {
+            let j = 0;
+            users_data[i].posts.forEach((post, index) => {
+              let post_para = document.createElement("p");
+              post_para.innerHTML = `${post} <button class='edit' data-id='${index}'>Edit</button> <button class='delete' data-id='${index}'>Delete</button>`;
+              posts.appendChild(post_para);
+
+              post_para.querySelector(".edit").addEventListener("click", async() => {
+                let newValue = prompt("Edit post:", post);
+                if (newValue !== null) {
+                  post_para.innerHTML = `${newValue} <button class='edit' data-id='${index}'>Edit</button> <button class='delete' data-id='${index}'>Delete</button>`;
+                }
+                await sendPostData(post_para, email);
+
+              });
+
+              post_para
+                .querySelector(".delete")
+                .addEventListener("click", () => {
+                  posts.removeChild(post_para);
+                });
+            });
+          } else {
+            let noPosts = document.createElement("p");
+            noPosts.innerHTML = "No posts available";
+            post_div.appendChild(noPosts);
+          }
+
+          email_para.innerHTML = users_data[i].email;
+          date_para.innerHTML = "1:03 am";
+          info_div.appendChild(date_para);
+          info_div.appendChild(email_para);
+
+          box.appendChild(para);
+          box.appendChild(post_div);
+          box.appendChild(info_div);
+          huge.appendChild(box);
+
+          container.appendChild(huge);
+        }
+      };
+
+
+     
+display_posts();
+
+    </script>
+  </body>
+</html>

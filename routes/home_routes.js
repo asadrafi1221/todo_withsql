@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { displayhome ,user_posts} from "../conttoller/homecontroller.js";
+import { display_allpost ,update_post} from "../conttoller/homecontroller.js";
 const router = Router();
-
-router.get('/home', displayhome)
-.post('/userpost',user_posts)
+router
+.get('/home/all_posts',display_allpost)
+.post('/update_post',update_post);
 
 export default router;

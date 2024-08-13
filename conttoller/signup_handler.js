@@ -2,12 +2,13 @@ import db_data from "../db_connection/db_connection.js";
 import secretkey from "../config/mykeys.js";
 import jwt from "jsonwebtoken";
 
+const display = (req, res) => {
+    res.render('signup');
+}
+
 const create_user = async (req, res) => {
     const { name, email } = req.body;
-    console.log(name, email);
 
-
-    const data = (await db_data.query('select * from all_users')).rows;
     if (!name || !email) {
         return res.status(400).send('Name and email are required.');
     }
@@ -23,23 +24,23 @@ const create_user = async (req, res) => {
 
         const jwt_token = jwt.sign({ email }, secretkey, { expiresIn: '1h' });
 
-        // Uncomment the line below if you want to use cookies for the token
-        // res.cookie('token', jwt_token);
+        res.cookie('token', jwt_token, { httpOnly: true });
 
-        res.render('home',{data : data});
+        res.redirect('/home/all_posts');
     } catch (err) {
         console.error('Database error:', err);
         return res.status(500).send('An error occurred while creating the user.');
     }
 }
 
-const display = (req, res) => {
-    res.render('signup');
+const get_data = async (req, res) => {
+    try {
+        const data = (await db_data.query('SELECT * FROM all_users')).rows;
+        res.send(data);
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).send('An error occurred while fetching data.');
+    }
 }
 
-
-const get_data = async (req,res)=>{
-    const data = (await db_data.query('select * from all_users')).rows;
-    res.send(data);
-}
-export { create_user, display ,get_data};
+export { create_user, display, get_data };
