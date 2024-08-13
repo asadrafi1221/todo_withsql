@@ -22,9 +22,7 @@ const create_user = async (req, res) => {
 
         await db_data.query('INSERT INTO all_users (name, email) VALUES ($1, $2)', [name, email]);
 
-        const jwt_token = jwt.sign({ email }, secretkey, { expiresIn: '1h' });
-
-        res.cookie('token', jwt_token, { httpOnly: true });
+       
 
         res.redirect('/home/all_posts');
     } catch (err) {
